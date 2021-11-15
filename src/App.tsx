@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { Button, TextField } from '@mui/material';
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         >
           Learn React
         </a>
+        <TextField id="outlined-basic" label="Outlined" variant="outlined" />
+        <Button variant="contained">Login</Button>
       </header>
     </div>
   );
