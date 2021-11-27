@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, TextField } from '@mui/material';
 import './css/register.css'
+import { width } from '@mui/system';
 
 interface Props {
   text: string;
@@ -16,7 +17,10 @@ function Register({ text }: Props): JSX.Element {
         <TextField label="Email" variant="outlined" />
         <TextField label="Password" type="password" variant="outlined" />
         <TextField label="Password confirm" type="password" variant="outlined" />
-        <Button variant="contained">Register</Button>
+        <div>
+          <Button variant="contained">Register</Button>
+          <Button variant="contained">Cancel</Button>
+        </div>
     </div>
   );
 }
