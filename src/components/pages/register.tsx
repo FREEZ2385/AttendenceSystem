@@ -25,10 +25,13 @@ function Register({ text }: Props): JSX.Element {
     const requestOptions = {
       crossDomain: true,
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        "access-control-allow-origin" : "*",
+        'Content-Type': 'application/json'
+       },
       body: JSON.stringify({ firstName, lastName, email, password })
   };
-    const response = await fetch('http://localhost:3002/api/insert-user', requestOptions);
+    const response = await fetch('/api/insert-user', requestOptions);
     const body = await response.json();
 
     if (response.status !== 200) {

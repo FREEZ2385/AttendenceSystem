@@ -4,34 +4,38 @@ var router = express.Router();
 router.get('/', function(req, res){
     res.send({test: 'hello World!'})
 })
-const connection = require('../sqlconnect');
+
+var connection = require('../sqlconnect');
+var Request = require('tedious').Request  
+var TYPES = require('tedious').TYPES;  
+
+connection.connect();
+connection.on("connect", err => {
+    console.log("DB Connected!");
+});
+
 router.post('/insert-user', (req, res) => {
     /**
      * もらえるデータ
      * firstName, lastName, email, password
      */
-    res.set('Access-Control-Allow-Origin', '*');
     connection.on("connect", err => {
-         if (err) {
-         console.error(err.message);
-         } else {
-         console.log("connected!");
-         InsertUserFunction(req.body.firstName, req.body.lastName,
+        InsertUserFunction(connection, req.body.firstName, req.body.lastName,
             req.body.email, req.body.password);
-         }
-     });
-    res.status(201)
-    })
+    });
+    
+    res.end("Insert Success")
+})
 
-var Request = require('tedious').Request  
-var TYPES = require('tedious').TYPES;  
 
-function InsertUserFunction(firstName, lastName, email, password) {  
-    const request = new Request("INSERT dbo.UserInfo (FirstName, FamilyName, MailAddress, Password);", function(err) {  
+
+function InsertUserFunction(connection, firstName, lastName, email, password) {  
+    const request = new Request("INSERT INTO UserInfo (FirstName,FamilyName,MailAddress,Password) VALUES (@FirstName,@FamilyName,@MailAddress,@Password);", function(err) {  
         if (err) {  
+        console.log("error in request")
         console.log(err);}  
     });  
-    request.addParameter('FirstName', TYPES.NVarChar,firstName);  
+    request.addParameter('FirstName', TYPES.NVarChar, firstName);  
     request.addParameter('FamilyName', TYPES.NVarChar , lastName);  
     request.addParameter('MailAddress', TYPES.NVarChar , email);  
     request.addParameter('Password', TYPES.NVarChar ,password);  
@@ -47,6 +51,7 @@ function InsertUserFunction(firstName, lastName, email, password) {
 
     // Close the connection after the final event emitted by the request, after the callback passes
     request.on("requestCompleted", function (rowCount, more) {
+        console.log("insert connected!");
         connection.close();
     });
     connection.execSql(request);  
