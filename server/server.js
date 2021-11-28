@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 var express = require('express');
 const app = express();
 const api = require('./routes');

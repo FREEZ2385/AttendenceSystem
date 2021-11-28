@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 var express = require('express');
 var router = express.Router();
 
@@ -13,7 +14,7 @@ var TYPES = require('tedious').TYPES;
  *  DB接続
  */
 connection.connect();
-connection.on("connect", err => {
+connection.on("connect", () => {
     console.log("DB Connected!");
 });
 
