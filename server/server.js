@@ -14,5 +14,5 @@ const port = 3002;
 
 
 app.listen(port, ()=>{
-    console.log("Server Connected!");
+    console.log("Server Connected! for test");
 });
