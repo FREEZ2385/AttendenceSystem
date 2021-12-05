@@ -47,7 +47,7 @@ function Register(): JSX.Element {
         <p> {errorMessage} </p>
         <div>
           <Button variant="contained" 
-          disabled={(password === '' || password !== passwordConfirmation)} 
+          disabled={(password === '' || password.length > 15 || password.length < 8 || password !== passwordConfirmation)} 
           onClick={() => {
               callBackendAPI();
           }}> 
