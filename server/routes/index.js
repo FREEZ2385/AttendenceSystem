@@ -25,10 +25,10 @@ router.post('/insert-user', (req, res) => {
      * firstName, lastName, email, password
      */
     console.log("Insert Connecting");
-    InsertUserFunction(req.body.firstName, req.body.lastName,
+
+    InsertUserFunction(res, req.body.firstName, req.body.lastName,
         req.body.email, req.body.password);
-    
-    res.end("Insert Success")
+
 })
 
 
@@ -39,11 +39,16 @@ router.post('/insert-user', (req, res) => {
  *  @param {string} email
  *  @param {string} password
  */
-function InsertUserFunction(firstName, lastName, email, password) {  
+function InsertUserFunction(response, firstName, lastName, email, password) {  
     const request = new Request("INSERT INTO UserInfo (FirstName,FamilyName,MailAddress,Password) VALUES (@FirstName,@FamilyName,@MailAddress,@Password);", function(err) {  
         if (err) {  
-        console.log("error in request")
-        console.log(err);}  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }  
+        else {
+            response.status(200).send('Success');
+        }
     });  
     request.addParameter('FirstName', TYPES.NVarChar, firstName);  
     request.addParameter('FamilyName', TYPES.NVarChar , lastName);  
@@ -59,8 +64,7 @@ function InsertUserFunction(firstName, lastName, email, password) {
         });  
     });
 
-    // Close the connection after the final event emitted by the request, after the callback passes
-    request.on("requestCompleted", function () {
+    request.on('requestCompleted', function () {
         console.log("insert connected!");
     });
     connection.execSql(request);  
