@@ -79,6 +79,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     });
     request.on('requestCompleted', function () {
         console.log("Check completed!");
+        // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
         if(emailList.length === 0) {
             InsertUserFunction(response, requestBody.firstName, requestBody.lastName,
                 requestBody.email, requestBody.password);

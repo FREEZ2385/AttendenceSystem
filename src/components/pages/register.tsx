@@ -31,6 +31,10 @@ function Register(): JSX.Element {
   };
     const response = await fetch('/api/insert-user', requestOptions);
 
+    // requestの結果によってメッセージを表示する
+    // 200 = 成功する場合
+    // 400 = 既にEmailが登録している場合
+    // 500 = Requestでエラーが起きた場合（DBに問題がある場合）
     if(response.status === 200) navigate("/login");
     else if (response.status === 400) setErrorMessage("既に登録したEmailがあります。");
     else setErrorMessage("EmailとPasswordの登録に問題が発生しました。");
@@ -48,9 +52,9 @@ function Register(): JSX.Element {
         <p> {errorMessage} </p>
         <div>
           <Button variant="contained" 
-          disabled={(password === '' || password.length > 15 || password.length < 8 || password !== passwordConfirmation)} 
-          onClick={() => {
-              callBackendAPI();
+            disabled={(password === '' || password.length > 15 || password.length < 8 || password !== passwordConfirmation)} 
+            onClick={() => {
+                callBackendAPI();
           }}> 
           Register
           </Button>
