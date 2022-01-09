@@ -32,9 +32,10 @@ function Register(): JSX.Element {
     const response = await fetch('/api/insert-user', requestOptions);
 
     if(response.status === 200) navigate("/login");
+    else if (response.status === 400) setErrorMessage("既に登録したEmailがあります。");
     else setErrorMessage("EmailとPasswordの登録に問題が発生しました。");
 
-    return response;  
+    return response;
   };
 
   return (

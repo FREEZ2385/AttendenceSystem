@@ -25,12 +25,9 @@ router.post('/insert-user', (req, res) => {
      * firstName, lastName, email, password
      */
     console.log("Insert Connecting");
-
-    InsertUserFunction(res, req.body.firstName, req.body.lastName,
-        req.body.email, req.body.password);
+    CheckUserEmailFunction(res, req.body);
 
 })
-
 
 /**  
  *  ユーザー登録
@@ -54,20 +51,43 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     request.addParameter('FamilyName', TYPES.NVarChar , lastName);  
     request.addParameter('MailAddress', TYPES.NVarChar , email);  
     request.addParameter('Password', TYPES.NVarChar ,password);  
-    request.on('row', function(columns) {  
-        columns.forEach(function(column) {  
-            if (column.value === null) {  
-            console.log('NULL');  
-            } else {  
-            console.log("Product id of inserted item is " + column.value);  
-            }  
-        });  
-    });
 
     request.on('requestCompleted', function () {
-        console.log("insert connected!");
+        console.log("Insert completed!");
     });
     connection.execSql(request);  
+}  
+
+/**  
+ *  ユーザーメール確認
+ *  @param {string} email
+ */
+ function CheckUserEmailFunction(response, requestBody)  {  
+    const request = new Request(`SELECT MailAddress FROM UserInfo WHERE MailAddress='${requestBody.email}';`, function(err) {  
+        // Requestが失敗した場合
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+    let emailList = [];
+    request.on('doneInProc', function (rowCount, more, rows) {
+        console.log("Check connected!");
+        // 結果データーをemailListに入れる
+        emailList = rows;
+    });
+    request.on('requestCompleted', function () {
+        console.log("Check completed!");
+        if(emailList.length === 0) {
+            InsertUserFunction(response, requestBody.firstName, requestBody.lastName,
+                requestBody.email, requestBody.password);
+        }
+        else {
+            response.status(400).send('Already Registered Email');
+        }
+    });
+    connection.execSql(request);
 }  
 
 module.exports = router;
