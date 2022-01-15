@@ -44,7 +44,7 @@ function Register(): JSX.Element {
 
   return (
     <div className="register">
-        <TextField label="First Name" variant="outlined" onChange={(event) => setFirstName(event.target.value)}/>
+        <TextField label="First Name2" variant="outlined" onChange={(event) => setFirstName(event.target.value)}/>
         <TextField label="Last Name" variant="outlined" onChange={(event) => setLastName(event.target.value)}/>
         <TextField label="Email" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
         <TextField label="Password" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
