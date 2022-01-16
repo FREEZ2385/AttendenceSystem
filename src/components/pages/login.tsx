@@ -5,7 +5,7 @@ function Login() {
   return (
     <div className="login">
         <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-        <TextField id="outlined-basic" label="Outlined" variant="outlined" />
+        <TextField id="outlined-basic" label="psword" variant="outlined" />
         <Button variant="contained">Login</Button>
     </div>
   );
