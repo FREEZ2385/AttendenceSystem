@@ -8,7 +8,6 @@ type T = {
   
 }
 
-
 function Register(): JSX.Element {
 
   const navigate = useNavigate();
@@ -36,7 +35,7 @@ function Register(): JSX.Element {
     // 400 = 既にEmailが登録している場合
     // 500 = Requestでエラーが起きた場合（DBに問題がある場合）
     if(response.status === 200) navigate("/login");
-    else if (response.status === 400) setErrorMessage("既に登録したEmailがあります。");
+    else if (response.status === 400) setErrorMessage("入力したEmailは既に登録済です。");
     else setErrorMessage("EmailとPasswordの登録に問題が発生しました。");
 
     return response;
@@ -44,11 +43,11 @@ function Register(): JSX.Element {
 
   return (
     <div className="register">
-        <TextField label="First Name2" variant="outlined" onChange={(event) => setFirstName(event.target.value)}/>
-        <TextField label="Last Name" variant="outlined" onChange={(event) => setLastName(event.target.value)}/>
-        <TextField label="Email" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
-        <TextField label="Password" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
-        <TextField label="Password confirm" type="password" variant="outlined" onChange={(event) => setPasswordConfirmation(event.target.value)}/>
+        <TextField label="ファーストネーム" variant="outlined" onChange={(event) => setFirstName(event.target.value)}/>
+        <TextField label="ラストネーム" variant="outlined" onChange={(event) => setLastName(event.target.value)}/>
+        <TextField label="メール" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
+        <TextField label="パスワード" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
+        <TextField label="確認パスワード" type="password" variant="outlined" onChange={(event) => setPasswordConfirmation(event.target.value)}/>
         <p> {errorMessage} </p>
         <div>
           <Button variant="contained" 
@@ -58,9 +57,15 @@ function Register(): JSX.Element {
           }}> 
           Register
           </Button>
-          <Button variant="contained">Cancel</Button>
+          <Button variant="contained"
+    onClick={e =>
+        { const r = window.confirm("ログイン画面へ戻ります。よろしいですか?"); if(r == true){ navigate("/login")}}
+    }>
+    Cancel
+</Button>
         </div>
-    </div>
+        </div>
+   
   );
 }
 
