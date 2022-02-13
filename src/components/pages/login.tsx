@@ -27,8 +27,11 @@ const callBackendAPI = async (): Promise<T> => {
 };
   const response = await fetch('/api/check-login-user', requestOptions);
   
-  if(response.status === 200) navigate("/kindai");
-  else if (response.status === 300) setErrorMessage("入力したEmailは未登録です。");
+  if(response.status === 200) {
+    response.json().then(data => (window.localStorage.setItem("attendence_user_data", JSON.stringify(data))));
+    
+    navigate("/kindai");
+  }
   else setErrorMessage("入力したパスワードが不正です。もう一度確認ください。");
 
   return response;

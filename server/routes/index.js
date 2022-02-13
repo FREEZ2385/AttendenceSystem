@@ -87,26 +87,17 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     let emailCnt =0;
     request.on('doneInProc', function (rowCount, more, rows) {
         console.log("Check connected!");
-        console.log("rowsCount" + rowCount);
-        console.log("rows" + rows);
         // 結果データーをemailListに入れる
-        // emailList = rowCount;
            emailCnt = rowCount;
-        // console.log("EmailLenght❷" + emailList.length);
-
     });
     request.on('requestCompleted', function () {
         console.log("Check completed❶!");
-        // console.log("EmailLenght" + emailList.length);
         // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
-        // if(emailList.length === 0) {
-            if( emailCnt=== 0) {
-            // console.log("EmailLenght(New)" + emailList.length);
-            InsertUserFunction(response, requestBody.firstName, requestBody.lastName,
-                requestBody.email, requestBody.password);
+            if(emailCnt=== 0) {
+                InsertUserFunction(response, requestBody.firstName, requestBody.lastName,
+                    requestBody.email, requestBody.password);
         }
         else {
-            // console.log("EmailLenght(Already)" + emailList.length);
             response.status(400).send('Already Registered Email');
         }
     });
@@ -119,67 +110,38 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
  *  @param {string} password
  */
  function CheckLoginUserFunction(response, requestBody)  {  
-    console.log("requestBody" + requestBody.email);
-   const request = new Request(`SELECT MailAddress FROM UserInfo WHERE MailAddress='${requestBody.email}';`, function(err) {  
+   const request = new Request(`SELECT MailAddress, FamilyName, FirstName FROM UserInfo WHERE MailAddress='${requestBody.email}' AND Password='${requestBody.password}';`, function(err) {  
        // Requestが失敗した場合
-       console.log("request:" + request.rowCount);
        if (err) {  
            console.log("error in request");
            console.log(err);
            response.status(500).send('Something broke!');
        }
    });  
-   let emailCnt =0;
+   let emailCnt = 0;
+   let emailList = [];
    request.on('doneInProc', function (rowCount, more, rows) {
        console.log("Check connected!");
-       console.log("rows" + rowCount);
        // 結果データーをemailListに入れる
-    //    emailList = rowCount;
        emailCnt = rowCount;
+       emailList = rows;
    });
    request.on('requestCompleted', function () {
        console.log("Check Mail completed!");
-    //    console.log("EmailList" + emailList.length);
        // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
-    //    if(emailList.length === 0) {
-        if(emailCnt === 0) {
-        console.log("Unregister Email!");
-        response.status(300).send('Unregister Email');
-       }
-       else {
-        console.log("ELse State");
-        const request = new Request(`SELECT Password FROM UserInfo WHERE Password='${requestBody.password}';`, function(err) {  
-            // Requestが失敗した場合
-            console.log("request:" + request.rowCount);
-            if (err) {  
-                console.log("error in request");
-                console.log(err);
-                response.status(500).send('Something broke!');
-            }
-        });  
-        // let emailList = [];
-        request.on('doneInProc', function (rowCount, more, rows) {
-            console.log("PasswordCheck connected!");
-            console.log("Prows" + rowCount);
-            // 結果データーをemailListに入れる
-            emailCnt = rowCount;
-        });
-        request.on('requestCompleted', function () {
-            console.log("Check completed!");
-            // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
-            // if(emailList.length === 0) {
-                if(emailCnt === 0) {
-                console.log("Uncorrect PassWord!");
-                response.status(400).send('Uncorrect PassWord');
-            }
-            else {
-                response.status(200).send('Registered User');
-            }
-        });
-
-   connection.execSql(request); 
-}
-});
+       if(emailCnt === 0) {
+        console.log("Uncorrect Email or PassWord!");
+        response.status(500).send('Uncorrect Email or PassWord');
+    }
+    else {
+        const resultData = {
+            email: emailList[0][0].value.trim(),
+            familyName: emailList[0][1].value.trim(),
+            firstName: emailList[0][2].value.trim(),
+        }
+        response.status(200).json(resultData);
+    }
+    });
    connection.execSql(request);
 }  
 
