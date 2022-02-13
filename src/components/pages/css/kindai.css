@@ -1,0 +1,14 @@
+.kindai-area {
+  width: 94vw;
+  height: 96vh;
+  padding: 2vh 2vw;
+}
+
+.title-area {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button-area {
+  float: right;
+}

@@ -28,9 +28,11 @@ const callBackendAPI = async (): Promise<T> => {
   const response = await fetch('/api/check-login-user', requestOptions);
   
   if(response.status === 200) {
-    response.json().then(data => (window.localStorage.setItem("attendence_user_data", JSON.stringify(data))));
+    response.json().then(data => {
+      window.localStorage.setItem("attendence_user_data", JSON.stringify(data));
+      navigate("/kindai", { state: data});
+  });
     
-    navigate("/kindai");
   }
   else setErrorMessage("入力したパスワードが不正です。もう一度確認ください。");
 
@@ -39,18 +41,28 @@ const callBackendAPI = async (): Promise<T> => {
 
   return (
     <div className="login">
-          <TextField label="メール" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
-          <TextField label="パスワード" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
-        <div>
-          <Button variant="contained" onClick={() => {
-                callBackendAPI();
-          }}>ログイン</Button>
-            <Button variant="contained" onClick={() => {
-                navigate("/register");
-          }}>新規登録</Button>
-         
-          <p> {errorMessage} </p>
-    </div>
+      <TextField label="メール" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
+      <TextField label="パスワード" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
+      <div>
+        <Button 
+          variant="contained"
+          onClick={() => {
+            callBackendAPI();
+          }}
+        >
+          ログイン
+        </Button>
+        <Button
+          variant="contained" 
+          onClick={() => {
+            navigate("/register");
+          }}
+        >
+          新規登録
+        </Button>
+        
+        <p> {errorMessage} </p>
+      </div>
     </div>
   );
 }

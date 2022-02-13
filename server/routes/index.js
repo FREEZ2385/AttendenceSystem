@@ -110,7 +110,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
  *  @param {string} password
  */
  function CheckLoginUserFunction(response, requestBody)  {  
-   const request = new Request(`SELECT MailAddress, FamilyName, FirstName FROM UserInfo WHERE MailAddress='${requestBody.email}' AND Password='${requestBody.password}';`, function(err) {  
+   const request = new Request(`SELECT ID, MailAddress, FamilyName, FirstName FROM UserInfo WHERE MailAddress='${requestBody.email}' AND Password='${requestBody.password}';`, function(err) {  
        // Requestが失敗した場合
        if (err) {  
            console.log("error in request");
@@ -135,9 +135,10 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     }
     else {
         const resultData = {
-            email: emailList[0][0].value.trim(),
-            familyName: emailList[0][1].value.trim(),
-            firstName: emailList[0][2].value.trim(),
+            id: emailList[0][0].value,
+            email: emailList[0][1].value.trim(),
+            familyName: emailList[0][2].value.trim(),
+            firstName: emailList[0][3].value.trim(),
         }
         response.status(200).json(resultData);
     }
