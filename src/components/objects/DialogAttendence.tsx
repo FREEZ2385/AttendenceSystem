@@ -36,6 +36,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
     }
 
     const workedCategoryList= ['勤務', '有給休暇', '自宅勤務', '休日'];
+    
 
     const [workedDate, setWorkedDate] = useState(dateArray[0]);
     const [workedCategory, setWorkedCategory] = useState(workedCategoryList[0]);
@@ -46,6 +47,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const [breakHour, setBreakHour] = useState('00');
     const [breakMinute, setBreakMinute] = useState('00');
 
+    const isActiveTime = (workedCategory === '休日' || workedCategory === '有給休暇');
     
 
     return (
@@ -76,7 +78,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                             value={workedCategory}
                             onChange={(event) => {
                                 setWorkedCategory(event.target.value);
-                                if(event.target.value === '休日' || event.target.value === '有給休暇'){
+                                if(!isActiveTime){
                                     setStartHour('00');
                                     setStartMinute('00');
                                     setEndHour('00');
@@ -96,7 +98,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <TextField 
                             size='small' 
                             value={startHour}
-                            disabled={(workedCategory === '休日' || workedCategory === '有給休暇')}
+                            disabled={isActiveTime}
                             onChange={(event) => {setStartHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
                             type="number" 
                             InputProps={{ inputProps: {...hourMinMax, maxLength: 2} }} />
@@ -104,7 +106,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <TextField
                             size='small'
                             value={startMinute}
-                            disabled={(workedCategory === '休日' || workedCategory === '有給休暇')}
+                            disabled={isActiveTime}
                             onChange={(event) => {setStartMinute(timeCal(event.target.value, minuteMinMax).padStart(2, '0'))}}
                             type="number"
                             InputProps={{ inputProps: {...minuteMinMax, maxLength: 2} }} 
@@ -118,7 +120,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                     <TextField 
                             size='small' 
                             value={endHour}
-                            disabled={(workedCategory === '休日' || workedCategory === '有給休暇')}
+                            disabled={isActiveTime}
                             onChange={(event) => {setBreakHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
                             type="number" 
                             InputProps={{ inputProps: {...hourMinMax, maxLength: 2}, }} />
@@ -126,7 +128,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <TextField
                             size='small'
                             value={endMinute}
-                            disabled={(workedCategory === '休日' || workedCategory === '有給休暇')}
+                            disabled={isActiveTime}
                             onChange={(event) => {setEndMinute(timeCal(event.target.value, minuteMinMax).padStart(2, '0'))}}
                             type="number"
                             InputProps={{ inputProps: {...minuteMinMax, maxLength: 2} }} 
@@ -140,7 +142,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                     <TextField 
                             size='small' 
                             value={breakHour}
-                            disabled={(workedCategory === '休日' || workedCategory === '有給休暇')}
+                            disabled={isActiveTime}
                             onChange={(event) => {setEndHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
                             type="number" 
                             InputProps={{ inputProps: {...hourMinMax, maxLength: 2}, }} />
@@ -148,7 +150,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <TextField
                             size='small'
                             value={breakMinute}
-                            disabled={(workedCategory === '休日' || workedCategory === '有給休暇')}
+                            disabled={isActiveTime}
                             onChange={(event) => {setBreakMinute(timeCal(event.target.value, minuteMinMax).padStart(2, '0'))}}
                             type="number"
                             InputProps={{ inputProps: {...minuteMinMax, maxLength: 2} }} 
