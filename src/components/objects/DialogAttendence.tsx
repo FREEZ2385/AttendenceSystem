@@ -121,7 +121,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                             size='small' 
                             value={endHour}
                             disabled={isActiveTime}
-                            onChange={(event) => {setBreakHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
+                            onChange={(event) => {setEndHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
                             type="number" 
                             InputProps={{ inputProps: {...hourMinMax, maxLength: 2}, }} />
                         <Typography style={{margin: 'auto 15px'}}>時</Typography>
@@ -143,7 +143,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                             size='small' 
                             value={breakHour}
                             disabled={isActiveTime}
-                            onChange={(event) => {setEndHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
+                            onChange={(event) => {setBreakHour(timeCal(event.target.value, hourMinMax).padStart(2, '0'))}}
                             type="number" 
                             InputProps={{ inputProps: {...hourMinMax, maxLength: 2}, }} />
                         <Typography style={{margin: 'auto 15px'}}>時</Typography>
