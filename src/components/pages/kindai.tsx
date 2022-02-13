@@ -1,7 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Paper, Typography, Button, Divider } from '@mui/material';
 import { useLocation } from 'react-router-dom';
+import DialogAttendence from '../objects/DialogAttendence';
 import CustomHrSelect from './time';
+import { Location } from "history";
+import { userInfo } from "./login"
 import moment from 'moment';
 import './css/kindai.css';
 
@@ -17,14 +20,22 @@ function getDates(month: number) {
   return dateArray;
 }
 
-function Kindai(){  
-  const { state } = useLocation();
-  const [userString, setUserString] = useState({familyName: '', firstName: ''});
-  const dateArray = getDates(moment().month())
+function Kindai() : JSX.Element{  
+  const location = useLocation();
+  const state = location.state as userInfo;
+  const [userString, setUserString] = useState({familyName: '', firstName: '', email: '', id: -1});
+  const dateArray = getDates(moment().month());
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(()=> {
     if(state) {
-      setUserString(state);
+      setUserString({
+        id: state?.id,
+        email: state?.email,
+        firstName: state?.firstName,
+        familyName: state?.familyName,
+      });
     }
     else{
       setUserString(JSON.parse(String(window.localStorage.getItem('attendence_user_data'))));
@@ -34,9 +45,10 @@ function Kindai(){
 
   return (
     <div className="kindai-area">
-      {userString ? (
+      {userString.id !== -1 ? (
         // ユーザー情報がある場合
         <div>
+          <DialogAttendence open={dialogOpen} setOpen={(bool) => setDialogOpen(bool)} dateArray={dateArray}/>
           <div className="title-area">
             <div>
               <Typography>Welcome To Attendence System</Typography>
@@ -46,7 +58,7 @@ function Kindai(){
             </div>
           </div>
           <div className="button-area">
-            <Button>勤怠登録</Button>
+            <Button onClick={()=> setDialogOpen(true)}>勤怠登録</Button>
           </div>
           <div className="table-area">
             <TableContainer component={Paper}>
