@@ -45,7 +45,7 @@ function Kindai() : JSX.Element{
 
   return (
     <div className="kindai-area">
-      {userString.id !== -1 ? (
+      {userString ? (
         // ユーザー情報がある場合
         <div>
           <DialogAttendence open={dialogOpen} setOpen={(bool) => setDialogOpen(bool)} dateArray={dateArray}/>
