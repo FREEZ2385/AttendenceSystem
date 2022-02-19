@@ -46,10 +46,13 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const [endMinute, setEndMinute] = useState('00');
     const [breakHour, setBreakHour] = useState('00');
     const [breakMinute, setBreakMinute] = useState('00');
-
-    const isActiveTime = (workedCategory === '休日' || workedCategory === '有給休暇');
+    const startHourTimeInt = parseInt(startHour);
+    const endHourTimeInt = parseInt(endHour);
+    const errorMessage = (endHourTimeInt != 0 && startHourTimeInt > endHourTimeInt) ? '終了時間が開始時間より前の時間で入力されています。ご確認ください。' : '';
     
+    const isActiveTime = (workedCategory === '休日' || workedCategory === '有給休暇');
 
+    
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle>勤怠登録</DialogTitle>
@@ -169,8 +172,9 @@ export default function DialogAttendence(props: props): JSX.Element   {
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>キャンセル</Button>
-                <Button onClick={handleClose}>保存</Button>
+             <Button disabled={(startHourTimeInt > endHourTimeInt)} onClick={handleClose}>登録</Button>
             </DialogActions>
+            <p>{errorMessage}</p>
         </Dialog>
     );
 }
