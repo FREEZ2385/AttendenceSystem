@@ -71,12 +71,14 @@ function Kindai() : JSX.Element{
                     <TableCell align="center">終了時間</TableCell>
                     <TableCell align="center">休憩時間</TableCell>
                     <TableCell align="center">実働時間</TableCell>
+                    <TableCell align="center">業務内容</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {dateArray.map((row) => (
                     <TableRow key={`date${row}`}>
                       <TableCell align="center" size="small">{row}</TableCell>
+                      <TableCell align="center"></TableCell>
                       <TableCell align="center"></TableCell>
                       <TableCell align="center"></TableCell>
                       <TableCell align="center"></TableCell>

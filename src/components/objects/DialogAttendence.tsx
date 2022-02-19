@@ -157,6 +157,14 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         />
                         <Typography style={{margin: 'auto 15px'}}>分</Typography>
                     </Grid>
+
+                    <Grid item xs={4}>
+                        <Typography style={{margin: 'auto 15px'}}>業務内容</Typography>
+                    </Grid>
+                    <Grid item xs={8} style={{display: 'flex'}}>
+                    <TextField id="outlined-basic" variant="outlined" />
+
+                    </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
