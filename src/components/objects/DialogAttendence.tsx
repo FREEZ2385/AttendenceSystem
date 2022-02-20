@@ -55,14 +55,13 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const [breakHour, setBreakHour] = useState('00');
     const [breakMinute, setBreakMinute] = useState('00');
     const [workedContent, setWorkedContent] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     
     
     const isActiveTime = (workedCategory === '休日' || workedCategory === '有給休暇');
     const isValidTime = (moment.duration(moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").diff(moment(`${startHour}:${startMinute}:00`, "HH:mm:ss")))
         .asHours() < 0
     )
-
-    const errorMessage = (isValidTime) ? '終了時間が開始時間より前の時間で入力されています。ご確認ください。' : '';
 
     const resetInput = () => {
         setWorkedCategory(workedCategoryList[0]);
@@ -269,9 +268,11 @@ export default function DialogAttendence(props: props): JSX.Element   {
             <DialogActions>
                 <Button onClick={handleClose}>キャンセル</Button>
              <Button 
-                disabled={isValidTime || !workedDate} 
                 onClick={()=>{
-                    callBackendInsertKindaiAPI();
+                    if(isValidTime) {setErrorMessage('終了時間が開始時間より前の時間で入力されています。ご確認ください。');}
+                    else{
+                    setErrorMessage('');
+                    callBackendInsertKindaiAPI();}
                 }}
             >登録</Button>
             </DialogActions>
