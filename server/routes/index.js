@@ -24,7 +24,7 @@ router.post('/insert-user', (req, res) => {
      * もらえるデータ
      * firstName, lastName, email, password
      */
-    console.log("Insert Connecting");
+    console.log("Insert User Connecting");
     CheckUserEmailFunction(res, req.body);
 
 })
@@ -36,6 +36,16 @@ router.post('/check-login-user', (req, res) => {
      */
     console.log("Check Login User");
     CheckLoginUserFunction(res, req.body);
+
+})
+
+router.post('/insert-kindai', (req, res) => {
+    /**
+     * もらえるデータ
+     * firstName, lastName, email, password
+     */
+    console.log("Insert Kindai Connecting");
+    CheckKindaiFunction(res, req.body);
 
 })
 
@@ -146,4 +156,85 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
    connection.execSql(request);
 }  
 
+
+/**  
+ *  勤怠登録・編集の確認
+ *  @param {integer} user
+ *  @param {Date} workedDate
+ *  @param {string} workedCategory
+ *  @param {time} startTime
+ *  @param {time} endTime
+ *  @param {time} offTime
+ *  @param {time} workedTime
+ *  @param {string} workedContent
+ */
+ function CheckKindaiFunction(response, requestBody)  {  
+    const request = new Request(`SELECT workedDate FROM attendence WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) {  
+        // Requestが失敗した場合
+        console.log("request:" + request.rowCount);
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+
+    let kindaiCnt = 0;
+    request.on('doneInProc', function (rowCount, more, rows) {
+        console.log("Check connected!");
+        // 結果データーをemailListに入れる
+        kindaiCnt = rowCount;
+    });
+    request.on('requestCompleted', function () {
+        console.log("Check completed❶!");
+        // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
+        if(kindaiCnt === 0) {
+            InsertKindaiFunction(response, requestBody);
+        }
+        else {
+            response.status(400).send('Already Registered Attendence. not function edit');
+        }
+    });
+    connection.execSql(request);
+ }  
+
+
+/**  
+ *  勤怠登録
+ *  @param {integer} user
+ *  @param {Date} workedDate
+ *  @param {string} workedCategory
+ *  @param {time} startTime
+ *  @param {time} endTime
+ *  @param {time} offTime
+ *  @param {time} workedTime
+ *  @param {string} workedContent
+ */
+ function InsertKindaiFunction(response, requestBody) {  
+    const request = new Request("INSERT INTO Attendence (UserEmail,WorkedDate,WorkedCategory,StartTime,EndTime,OffTime,WorkedTime,WorkedContent) VALUES (@UserEmail,@WorkedDate,@WorkedCategory,@StartTime,@EndTime,@OffTime,@WorkedTime,@WorkedContent);", function(err) {  
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }  
+        else {
+            response.status(200).send('Success');
+        }
+    }); 
+    request.addParameter('UserEmail', TYPES.Int, requestBody.user);  
+    request.addParameter('WorkedDate', TYPES.NVarChar , requestBody.workedDate);  
+    request.addParameter('WorkedCategory', TYPES.NVarChar , requestBody.workedCategory);  
+    request.addParameter('StartTime', TYPES.VarChar ,requestBody.startTime);  
+    request.addParameter('EndTime', TYPES.VarChar ,requestBody.endTime);  
+    request.addParameter('OffTime', TYPES.VarChar ,requestBody.offTime);  
+    request.addParameter('WorkedTime', TYPES.VarChar ,requestBody.workedTime);  
+    request.addParameter('WorkedContent', TYPES.VarChar ,requestBody.workedContent);  
+
+    request.on('requestCompleted', function () {
+        console.log("Insert completed!");
+    });
+    connection.execSql(request);  
+}  
+
 module.exports = router;
+

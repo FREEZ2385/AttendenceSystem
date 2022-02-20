@@ -5,7 +5,6 @@ import './css/register.css'
 
 type T = {
   status: number,
-  
 }
 
 export interface userInfo {

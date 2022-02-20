@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
 import { Select, MenuItem, TextField, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Button } from '@mui/material';
 import './css/DialogAttendence.css';
+import { userInfo } from "../pages/login"
+import moment from 'moment';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type props = { open: boolean; setOpen: (bool: boolean) => void; dateArray: Array<string> } & typeof defaultProps;
+type props = { open: boolean; setOpen: (bool: boolean) => void; userString: userInfo; dateArray: Array<string> } & typeof defaultProps;
 
 const defaultProps = {
     open: false,
+    userString: {
+        familyName: "",
+        firstName: "",
+        email: "",
+        id: -1,
+    },
 };
+
+type T = {
+    status: number,  
+}
 
 type minMax = {
     min: number,
@@ -16,7 +28,7 @@ type minMax = {
 
 
 export default function DialogAttendence(props: props): JSX.Element   {
-    const {open, setOpen, dateArray} = props;
+    const {open, setOpen, userString, dateArray} = props;
 
     const handleClose = () => {
         setOpen(false);
@@ -46,11 +58,43 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const [endMinute, setEndMinute] = useState('00');
     const [breakHour, setBreakHour] = useState('00');
     const [breakMinute, setBreakMinute] = useState('00');
+    const [workedContent, setWorkedContent] = useState('');
     const startHourTimeInt = parseInt(startHour);
     const endHourTimeInt = parseInt(endHour);
     const errorMessage = (endHourTimeInt != 0 && startHourTimeInt > endHourTimeInt) ? '終了時間が開始時間より前の時間で入力されています。ご確認ください。' : '';
     
     const isActiveTime = (workedCategory === '休日' || workedCategory === '有給休暇');
+
+    const callBackendAPI = async (): Promise<T>=> {
+        const breakTime =  moment.duration(`${breakHour}:${breakMinute}:00`).asHours();
+        const workedTime = moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").subtract(breakTime, 'hours').subtract(moment.duration(`${startHour}:${startMinute}:00`).asHours(), 'hours').format('HH:mm:ss');
+
+        const requestOptions = {
+          crossDomain: true,
+          method: 'POST',
+          headers: { 
+            "access-control-allow-origin" : "*",
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+              user: userString.id, 
+              workedDate: moment(workedDate, "YYYY/MM/DD").format('YYYY-MM-DD'),
+              workedCategory,
+              startTime: moment(`${startHour}:${startMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
+              endTime: moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
+              offTime: moment(`${breakHour}:${breakMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
+              workedTime,
+              workedContent
+             })
+        };
+        const response = await fetch('/api/insert-kindai', requestOptions);
+        
+        // if(response.status === 200) {
+        //     handleClose();
+        // }
+        handleClose();
+        return response;
+    };
 
     
     return (
@@ -165,17 +209,20 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <Typography style={{margin: 'auto 15px'}}>業務内容</Typography>
                     </Grid>
                     <Grid item xs={8} style={{display: 'flex'}}>
-                    <TextField id="outlined-basic" variant="outlined" />
-
+                        <TextField id="outlined-basic" variant="outlined" value={workedContent} onChange={(event) => setWorkedContent(event.target.value)}/>
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>キャンセル</Button>
-             <Button disabled={(startHourTimeInt > endHourTimeInt)} onClick={handleClose}>登録</Button>
+             <Button 
+                disabled={(startHourTimeInt > endHourTimeInt)} 
+                onClick={()=>{
+                    callBackendAPI();
+                }}
+            >登録</Button>
             </DialogActions>
             <p>{errorMessage}</p>
         </Dialog>
     );
 }
-

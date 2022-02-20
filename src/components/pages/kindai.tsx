@@ -48,7 +48,7 @@ function Kindai() : JSX.Element{
       {userString ? (
         // ユーザー情報がある場合
         <div>
-          <DialogAttendence open={dialogOpen} setOpen={(bool) => setDialogOpen(bool)} dateArray={dateArray}/>
+          <DialogAttendence open={dialogOpen} setOpen={(bool) => setDialogOpen(bool)} userString={userString} dateArray={dateArray}/>
           <div className="title-area">
             <div>
               <Typography>Welcome To Attendence System</Typography>
