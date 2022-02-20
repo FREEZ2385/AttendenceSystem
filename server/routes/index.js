@@ -36,7 +36,15 @@ router.post('/check-login-user', (req, res) => {
      */
     console.log("Check Login User");
     CheckLoginUserFunction(res, req.body);
+})
 
+router.post('/get-kindai', (req, res) => {
+    /**
+     * もらえるデータ
+     *  email, password
+     */
+    console.log("Check Kindai");
+    GetAttendenceFunction(res, req.body);
 })
 
 router.post('/insert-kindai', (req, res) => {
@@ -155,6 +163,49 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     });
    connection.execSql(request);
 }  
+
+/**  
+ *  勤怠確認
+ *  @param {string} user
+ *  @param {string} workedDate
+ */
+ function GetAttendenceFunction(response, requestBody)  {  
+    const request = new Request(`SELECT WorkedDate, WorkedCategory, StartTime, EndTime, OffTime, WorkedContent FROM attendence WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) {  
+        // Requestが失敗した場合
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+    let emailCnt = 0;
+    let emailList = [];
+    request.on('doneInProc', function (rowCount, more, rows) {
+        console.log("Check connected!");
+        // 結果データーをemailListに入れる
+        emailCnt = rowCount;
+        emailList = rows;
+    });
+    request.on('requestCompleted', function () {
+        console.log("Check Kindai completed!");
+        // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
+        if(emailCnt === 0) {
+            response.status(200).json({});
+        }
+        else {
+            const resultData = {
+                WorkedDate: emailList[0][0].value,
+                WorkedCategory: emailList[0][1].value.trim(),
+                StartTime: emailList[0][2].value,
+                EndTime: emailList[0][3].value,
+                OffTime: emailList[0][4].value,
+                WorkedContent: emailList[0][5].value.trim(),
+            }
+            response.status(200).json(resultData);
+        }
+     });
+    connection.execSql(request);
+ } 
 
 
 /**  

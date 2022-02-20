@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Select, MenuItem, TextField, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Button } from '@mui/material';
 import './css/DialogAttendence.css';
 import { userInfo } from "../pages/login"
@@ -30,10 +30,6 @@ type minMax = {
 export default function DialogAttendence(props: props): JSX.Element   {
     const {open, setOpen, userString, dateArray} = props;
 
-    const handleClose = () => {
-        setOpen(false);
-    };
-
     const hourMinMax = { min: 0, max: 23 };
     const minuteMinMax = { min: 0, max: 59 };
 
@@ -50,7 +46,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const workedCategoryList= ['勤務', '有給休暇', '自宅勤務', '休日'];
     
 
-    const [workedDate, setWorkedDate] = useState(dateArray[0]);
+    const [workedDate, setWorkedDate] = useState('');
     const [workedCategory, setWorkedCategory] = useState(workedCategoryList[0]);
     const [startHour, setStartHour] = useState('00');
     const [startMinute, setStartMinute] = useState('00');
@@ -59,13 +55,33 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const [breakHour, setBreakHour] = useState('00');
     const [breakMinute, setBreakMinute] = useState('00');
     const [workedContent, setWorkedContent] = useState('');
-    const startHourTimeInt = parseInt(startHour);
-    const endHourTimeInt = parseInt(endHour);
-    const errorMessage = (endHourTimeInt != 0 && startHourTimeInt > endHourTimeInt) ? '終了時間が開始時間より前の時間で入力されています。ご確認ください。' : '';
+    
     
     const isActiveTime = (workedCategory === '休日' || workedCategory === '有給休暇');
+    const isValidTime = (moment.duration(moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").diff(moment(`${startHour}:${startMinute}:00`, "HH:mm:ss")))
+        .asHours() < 0
+    )
 
-    const callBackendAPI = async (): Promise<T>=> {
+    const errorMessage = (isValidTime) ? '終了時間が開始時間より前の時間で入力されています。ご確認ください。' : '';
+
+    const resetInput = () => {
+        setWorkedCategory(workedCategoryList[0]);
+        setStartHour('00');
+        setStartMinute('00');
+        setEndHour('00');
+        setEndMinute('00');
+        setBreakHour('00');
+        setBreakMinute('00');
+        setWorkedContent('');
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+        setWorkedDate('');
+        resetInput();
+    };
+
+    const callBackendInsertKindaiAPI = async (): Promise<T>=> {
         const breakTime =  moment.duration(`${breakHour}:${breakMinute}:00`).asHours();
         const workedTime = moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").subtract(breakTime, 'hours').subtract(moment.duration(`${startHour}:${startMinute}:00`).asHours(), 'hours').format('HH:mm:ss');
 
@@ -96,6 +112,40 @@ export default function DialogAttendence(props: props): JSX.Element   {
         return response;
     };
 
+    const callBackendGetKindaiAPI = async (date: string): Promise<T>=> {
+        const requestOptions = {
+          crossDomain: true,
+          method: 'POST',
+          headers: { 
+            "access-control-allow-origin" : "*",
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+              user: userString.id, 
+              workedDate: moment(date, "YYYY/MM/DD").format('YYYY-MM-DD'),
+             })
+        };
+        const response = await fetch('/api/get-kindai', requestOptions);
+        
+        if(response.status === 200) {
+            response.json().then(data => {
+                if(data.WorkedDate){
+                    setWorkedCategory(data.WorkedCategory);
+                    setStartHour(String(moment(data.StartTime).utc().hour()).padStart(2, '0'));
+                    setStartMinute(String(moment(data.StartTime).utc().minute()).padStart(2, '0'));
+                    setEndHour(String(moment(data.EndTime).utc().hour()).padStart(2, '0'));
+                    setEndMinute(String(moment(data.EndTime).utc().minute()).padStart(2, '0'));
+                    setBreakHour(String(moment(data.OffTime).utc().hour()).padStart(2, '0'));
+                    setBreakMinute(String(moment(data.OffTime).utc().minute()).padStart(2, '0'));
+                    setWorkedContent(data.WorkedContent);
+                } else {
+                    resetInput();
+                }
+            });
+        }
+        return response;
+    };
+
     
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -110,7 +160,10 @@ export default function DialogAttendence(props: props): JSX.Element   {
                             size='small'
                             fullWidth
                             value={workedDate}
-                            onChange={(event) => {setWorkedDate(event.target.value)}}
+                            onChange={(event) => {
+                                setWorkedDate(event.target.value);
+                                callBackendGetKindaiAPI(event.target.value);
+                            }}
                         >
                         {dateArray.map((row:string)=>(<MenuItem key={row} value={row}>{row}</MenuItem>))}
                         </Select>
@@ -216,9 +269,9 @@ export default function DialogAttendence(props: props): JSX.Element   {
             <DialogActions>
                 <Button onClick={handleClose}>キャンセル</Button>
              <Button 
-                disabled={(startHourTimeInt > endHourTimeInt)} 
+                disabled={isValidTime || !workedDate} 
                 onClick={()=>{
-                    callBackendAPI();
+                    callBackendInsertKindaiAPI();
                 }}
             >登録</Button>
             </DialogActions>
