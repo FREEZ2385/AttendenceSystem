@@ -45,8 +45,9 @@ export default function DialogAttendence(props: props): JSX.Element   {
 
     const workedCategoryList= ['勤務', '有給休暇', '自宅勤務', '休日'];
     
-
-    const [workedDate, setWorkedDate] = useState('');
+    const tdyDate = moment().format('YYYY/MM/DD');
+    
+    const [workedDate, setWorkedDate] = useState(tdyDate);
     const [workedCategory, setWorkedCategory] = useState(workedCategoryList[0]);
     const [startHour, setStartHour] = useState('00');
     const [startMinute, setStartMinute] = useState('00');
@@ -62,7 +63,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const isValidTime = (moment.duration(moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").diff(moment(`${startHour}:${startMinute}:00`, "HH:mm:ss")))
         .asHours() < 0
     )
-
+   
     const resetInput = () => {
         setWorkedCategory(workedCategoryList[0]);
         setStartHour('00');
@@ -76,7 +77,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
 
     const handleClose = () => {
         setOpen(false);
-        setWorkedDate('');
+        setWorkedDate(tdyDate);
         resetInput();
     };
 
@@ -158,7 +159,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <Select 
                             size='small'
                             fullWidth
-                            value={workedDate}
+                            value={workedDate}  
                             onChange={(event) => {
                                 setWorkedDate(event.target.value);
                                 callBackendGetKindaiAPI(event.target.value);
@@ -184,6 +185,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
                                     setEndMinute('00');
                                     setBreakHour('00');
                                     setBreakMinute('00');
+                                    setWorkedContent('');
                                 }
                             }}
                         >
@@ -261,8 +263,8 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <Typography style={{margin: 'auto 15px'}}>業務内容</Typography>
                     </Grid>
                     <Grid item xs={8} style={{display: 'flex'}}>
-                        <TextField id="outlined-basic" variant="outlined" value={workedContent} onChange={(event) => setWorkedContent(event.target.value)}/>
-                    </Grid>
+                        <TextField id="outlined-basic" variant="outlined" value={workedContent} disabled={isActiveTime} onChange={(event) => setWorkedContent(event.target.value)}/>
+                    </Grid> 
                 </Grid>
             </DialogContent>
             <DialogActions>

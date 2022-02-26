@@ -243,7 +243,8 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
             InsertKindaiFunction(response, requestBody);
         }
         else {
-            response.status(400).send('Already Registered Attendence. not function edit');
+            // response.status(400).send('Already Registered Attendence. not function edit');
+            UpdateKindaiFunction(response, requestBody);
         }
     });
     connection.execSql(request);
@@ -287,5 +288,31 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     connection.execSql(request);  
 }  
 
+function UpdateKindaiFunction(response, requestBody) {  
+    // const request = new Request('UPDATE Attendence SET WorkedCategory = @WorkedCategory,StartTime = @StartTime,EndTime = @EndTime,OffTime = @OffTime,WorkedTime = @WorkedTime,WorkedContent = @WorkedContent WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) { 
+        const request = new Request(`UPDATE Attendence SET WorkedCategory = @WorkedCategory,StartTime = @StartTime,EndTime = @EndTime,OffTime = @OffTime,WorkedTime = @WorkedTime,WorkedContent = @WorkedContent WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) {  
+        if (err) {  
+            console.log("error in request update");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }  
+        else {
+            response.status(400).send('Success');
+        }
+    }); 
+    request.addParameter('UserEmail', TYPES.Int, requestBody.user);  
+    request.addParameter('WorkedDate', TYPES.NVarChar , requestBody.workedDate);  
+    request.addParameter('WorkedCategory', TYPES.NVarChar , requestBody.workedCategory);  
+    request.addParameter('StartTime', TYPES.VarChar ,requestBody.startTime);  
+    request.addParameter('EndTime', TYPES.VarChar ,requestBody.endTime);  
+    request.addParameter('OffTime', TYPES.VarChar ,requestBody.offTime);  
+    request.addParameter('WorkedTime', TYPES.VarChar ,requestBody.workedTime);  
+    request.addParameter('WorkedContent', TYPES.VarChar ,requestBody.workedContent);  
+
+    request.on('requestCompleted', function () {
+        console.log("Update completed!");
+    });
+    connection.execSql(request);  
+}  
 module.exports = router;
 
