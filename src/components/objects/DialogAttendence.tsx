@@ -149,6 +149,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
         if(response.status === 200) {
             response.json().then(data => {
                 setUserString(data);
+                window.localStorage.setItem("attendence_user_data", JSON.stringify(data));
             });
         }
         handleClose();
