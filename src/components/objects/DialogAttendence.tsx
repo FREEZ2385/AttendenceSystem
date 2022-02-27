@@ -82,7 +82,7 @@ export default function DialogAttendence(props: props): JSX.Element   {
     };
 
     useEffect(()=> {
-        callBackendGetKindaiAPI(workedDate);
+        if(userString.id !== -1) callBackendGetKindaiAPI(workedDate);
       }, [userString]);
 
     const callBackendInsertKindaiAPI = async (): Promise<T>=> {
