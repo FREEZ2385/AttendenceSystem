@@ -65,7 +65,7 @@ router.post('/insert-kindai', (req, res) => {
  *  @param {string} password
  */
 function InsertUserFunction(response, firstName, lastName, email, password) {  
-    const request = new Request("INSERT INTO UserInfo (FirstName,FamilyName,MailAddress,Password) VALUES (@FirstName,@FamilyName,@MailAddress,@Password);", function(err) {  
+    const request = new Request("INSERT INTO UserInfo (FirstName,FamilyName,MailAddress,Password,RemainHoliday) VALUES (@FirstName,@FamilyName,@MailAddress,@Password,@RemainHoliday);", function(err) {  
         if (err) {  
             console.log("error in request");
             console.log(err);
@@ -78,7 +78,8 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     request.addParameter('FirstName', TYPES.NVarChar, firstName);  
     request.addParameter('FamilyName', TYPES.NVarChar , lastName);  
     request.addParameter('MailAddress', TYPES.NVarChar , email);  
-    request.addParameter('Password', TYPES.NVarChar ,password);  
+    request.addParameter('Password', TYPES.NVarChar ,password);
+    request.addParameter('RemainHoliday', TYPES.Int ,10);  
 
     request.on('requestCompleted', function () {
         console.log("Insert completed!");
