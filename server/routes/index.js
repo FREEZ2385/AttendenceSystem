@@ -110,7 +110,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
            emailCnt = rowCount;
     });
     request.on('requestCompleted', function () {
-        console.log("Check completed❶!");
+        console.log("Check completed!");
         // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
             if(emailCnt=== 0) {
                 InsertUserFunction(response, requestBody.firstName, requestBody.lastName,
@@ -281,7 +281,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
     request.addParameter('EndTime', TYPES.VarChar ,requestBody.endTime);  
     request.addParameter('OffTime', TYPES.VarChar ,requestBody.offTime);  
     request.addParameter('WorkedTime', TYPES.VarChar ,requestBody.workedTime);  
-    request.addParameter('WorkedContent', TYPES.VarChar ,requestBody.workedContent);  
+    request.addParameter('WorkedContent', TYPES.NVarChar ,requestBody.workedContent);  
 
     request.on('requestCompleted', function () {
         console.log("Insert completed!");
@@ -298,7 +298,7 @@ function UpdateKindaiFunction(response, requestBody) {
             response.status(500).send('Something broke!');
         }  
         else {
-            response.status(400).send('Success');
+            response.status(200).send('Success');
         }
     }); 
     request.addParameter('UserEmail', TYPES.Int, requestBody.user);  
@@ -308,7 +308,7 @@ function UpdateKindaiFunction(response, requestBody) {
     request.addParameter('EndTime', TYPES.VarChar ,requestBody.endTime);  
     request.addParameter('OffTime', TYPES.VarChar ,requestBody.offTime);  
     request.addParameter('WorkedTime', TYPES.VarChar ,requestBody.workedTime);  
-    request.addParameter('WorkedContent', TYPES.VarChar ,requestBody.workedContent);  
+    request.addParameter('WorkedContent', TYPES.NVarChar ,requestBody.workedContent);  
 
     request.on('requestCompleted', function () {
         console.log("Update completed!");
