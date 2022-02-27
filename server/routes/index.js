@@ -270,9 +270,6 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
             console.log(err);
             response.status(500).send('Something broke!');
         }  
-        else {
-            response.status(200).send('Success');
-        }
     }); 
     request.addParameter('UserEmail', TYPES.Int, requestBody.user);  
     request.addParameter('WorkedDate', TYPES.NVarChar , requestBody.workedDate);  
@@ -285,6 +282,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
 
     request.on('requestCompleted', function () {
         console.log("Insert completed!");
+        response.status(200).send('Success');
     });
     connection.execSql(request);  
 }  
@@ -297,9 +295,6 @@ function UpdateKindaiFunction(response, requestBody) {
             console.log(err);
             response.status(500).send('Something broke!');
         }  
-        else {
-            response.status(200).send('Success');
-        }
     }); 
     request.addParameter('UserEmail', TYPES.Int, requestBody.user);  
     request.addParameter('WorkedDate', TYPES.NVarChar , requestBody.workedDate);  
@@ -312,6 +307,7 @@ function UpdateKindaiFunction(response, requestBody) {
 
     request.on('requestCompleted', function () {
         console.log("Update completed!");
+        response.status(200).send('Success');
     });
     connection.execSql(request);  
 }  

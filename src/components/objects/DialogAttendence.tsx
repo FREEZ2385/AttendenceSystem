@@ -81,6 +81,10 @@ export default function DialogAttendence(props: props): JSX.Element   {
         resetInput();
     };
 
+    useEffect(()=> {
+        callBackendGetKindaiAPI(workedDate);
+      }, [userString]);
+
     const callBackendInsertKindaiAPI = async (): Promise<T>=> {
         const breakTime =  moment.duration(`${breakHour}:${breakMinute}:00`).asHours();
         const workedTime = moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").subtract(breakTime, 'hours').subtract(moment.duration(`${startHour}:${startMinute}:00`).asHours(), 'hours').format('HH:mm:ss');
