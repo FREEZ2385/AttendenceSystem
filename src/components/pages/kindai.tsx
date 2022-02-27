@@ -61,7 +61,7 @@ function Kindai() : JSX.Element{
           <div className="button-area">
             <Button onClick={()=> setDialogOpen(true)}>勤怠登録</Button>
           </div>
-          <div className="output-area">
+           <div className="output-area">
           <TableContainer >
               <Table aria-label="customized table">
                 <TableHead>
