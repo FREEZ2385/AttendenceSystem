@@ -12,6 +12,7 @@ export interface userInfo {
   firstName: string,
   email: string,
   id: number,
+  remainHoliday: number,
 }
 
 function Login(): JSX.Element { 

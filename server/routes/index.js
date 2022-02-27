@@ -129,7 +129,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
  *  @param {string} password
  */
  function CheckLoginUserFunction(response, requestBody)  {  
-   const request = new Request(`SELECT ID, MailAddress, FamilyName, FirstName FROM UserInfo WHERE MailAddress='${requestBody.email}' AND Password='${requestBody.password}';`, function(err) {  
+   const request = new Request(`SELECT ID, MailAddress, FamilyName, FirstName, RemainHoliday FROM UserInfo WHERE MailAddress='${requestBody.email}' AND Password='${requestBody.password}';`, function(err) {  
        // Requestが失敗した場合
        if (err) {  
            console.log("error in request");
@@ -158,12 +158,97 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
             email: emailList[0][1].value.trim(),
             familyName: emailList[0][2].value.trim(),
             firstName: emailList[0][3].value.trim(),
+            remainHoliday: emailList[0][4].value
         }
-        response.status(200).json(resultData);
+        CheckUserRemainHolidayFunction(response, resultData)
     }
     });
    connection.execSql(request);
 }  
+
+/**  
+ *  ユーザーメール確認
+ *  @param {string} email
+ */
+function CheckLoginUserNonPasswordFunction(response, userId)  {  
+    const request = new Request(`SELECT ID, MailAddress, FamilyName, FirstName, RemainHoliday FROM UserInfo WHERE ID='${userId}';`, function(err) {  
+        // Requestが失敗した場合
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+    let emailCnt = 0;
+    let emailList = [];
+    request.on('doneInProc', function (rowCount, more, rows) {
+        // 結果データーをemailListに入れる
+        emailCnt = rowCount;
+        emailList = rows;
+    });
+    request.on('requestCompleted', function () {
+        // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
+        if(emailCnt === 0) {
+         console.log("Uncorrect Email or PassWord!");
+         response.status(500).send('Uncorrect Email or PassWord');
+     }
+     else {
+         const resultData = {
+             id: emailList[0][0].value,
+             email: emailList[0][1].value.trim(),
+             familyName: emailList[0][2].value.trim(),
+             firstName: emailList[0][3].value.trim(),
+             remainHoliday: emailList[0][4].value
+         }
+         // ユーザの残有給数まで取得する
+         CheckUserRemainHolidayFunction(response, resultData)
+     }
+     });
+    connection.execSql(request);
+ }
+
+const getStartEndDates = () =>  {
+    var moment = require('moment');
+    const startDate = moment().startOf("year").format('YYYY-MM-DD');
+    const endDate = moment().endOf("year").format('YYYY-MM-DD');
+
+    return {
+        startDate, endDate
+    };
+  }
+
+/**  
+ *  ユーザーの残有給数確認確認
+ *  @param {int} id
+ *  @param {string} email
+ */
+ function CheckUserRemainHolidayFunction(response, requestBody)  {  
+    const startEndDates = getStartEndDates();
+    const request = new Request(`SELECT ID FROM Attendence WHERE UserEmail=${requestBody.id} AND WorkedCategory=N'有給休暇' AND WorkedDate BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}';`, function(err) {  
+        // Requestが失敗した場合
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+    let emailCnt = 0;
+    request.on('doneInProc', function (rowCount, more, rows) {
+        console.log("Check connected!");
+        // 結果データーをemailListに入れる
+        emailCnt = rowCount;
+    });
+    request.on('requestCompleted', function () {
+        // 元のユーザーデーターに残有給数を更新
+        const resultData = {
+            ...requestBody,
+            remainHoliday: requestBody.remainHoliday - emailCnt
+        };
+        response.status(200).json(resultData);
+     });
+    connection.execSql(request);
+ }  
+ 
 
 /**  
  *  勤怠確認
@@ -223,7 +308,6 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
  function CheckKindaiFunction(response, requestBody)  {  
     const request = new Request(`SELECT workedDate FROM attendence WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) {  
         // Requestが失敗した場合
-        console.log("request:" + request.rowCount);
         if (err) {  
             console.log("error in request");
             console.log(err);
@@ -238,7 +322,6 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
         kindaiCnt = rowCount;
     });
     request.on('requestCompleted', function () {
-        console.log("Check completed❶!");
         // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
         if(kindaiCnt === 0) {
             InsertKindaiFunction(response, requestBody);
@@ -282,7 +365,7 @@ function InsertUserFunction(response, firstName, lastName, email, password) {
 
     request.on('requestCompleted', function () {
         console.log("Insert completed!");
-        response.status(200).send('Success');
+        CheckLoginUserNonPasswordFunction(response, requestBody.user);
     });
     connection.execSql(request);  
 }  
@@ -307,7 +390,7 @@ function UpdateKindaiFunction(response, requestBody) {
 
     request.on('requestCompleted', function () {
         console.log("Update completed!");
-        response.status(200).send('Success');
+        CheckLoginUserNonPasswordFunction(response, requestBody.user);
     });
     connection.execSql(request);  
 }  

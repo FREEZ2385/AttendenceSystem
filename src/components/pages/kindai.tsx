@@ -23,7 +23,7 @@ function getDates(month: number) {
 function Kindai() : JSX.Element{  
   const location = useLocation();
   const state = location.state as userInfo;
-  const [userString, setUserString] = useState({familyName: '', firstName: '', email: '', id: -1});
+  const [userString, setUserString] = useState({familyName: '', firstName: '', email: '', id: -1, remainHoliday: -1});
   const dateArray = getDates(moment().month());
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -35,6 +35,7 @@ function Kindai() : JSX.Element{
         email: state?.email,
         firstName: state?.firstName,
         familyName: state?.familyName,
+        remainHoliday: state?.remainHoliday,
       });
     }
     else{
@@ -48,7 +49,7 @@ function Kindai() : JSX.Element{
       {userString ? (
         // ユーザー情報がある場合
         <div>
-          <DialogAttendence open={dialogOpen} setOpen={(bool) => setDialogOpen(bool)} userString={userString} dateArray={dateArray}/>
+          <DialogAttendence open={dialogOpen} setOpen={(bool) => setDialogOpen(bool)} userString={userString} setUserString={(userInfo) => setUserString(userInfo)} dateArray={dateArray}/>
           <div className="title-area">
             <div>
               <Typography>Welcome To Attendence System</Typography>

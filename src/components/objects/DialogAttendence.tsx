@@ -5,7 +5,7 @@ import { userInfo } from "../pages/login"
 import moment from 'moment';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type props = { open: boolean; setOpen: (bool: boolean) => void; userString: userInfo; dateArray: Array<string> } & typeof defaultProps;
+type props = { open: boolean; setOpen: (bool: boolean) => void; userString: userInfo; setUserString: (userInfo: userInfo) => void; dateArray: Array<string> } & typeof defaultProps;
 
 const defaultProps = {
     open: false,
@@ -14,6 +14,7 @@ const defaultProps = {
         firstName: "",
         email: "",
         id: -1,
+        remainHoliday: -1,
     },
 };
 
@@ -28,7 +29,7 @@ type minMax = {
 
 
 export default function DialogAttendence(props: props): JSX.Element   {
-    const {open, setOpen, userString, dateArray} = props;
+    const {open, setOpen, userString, setUserString, dateArray} = props;
 
     const hourMinMax = { min: 0, max: 23 };
     const minuteMinMax = { min: 0, max: 59 };
@@ -73,48 +74,8 @@ export default function DialogAttendence(props: props): JSX.Element   {
         setBreakHour('00');
         setBreakMinute('00');
         setWorkedContent('');
+        setErrorMessage('');
     }
-
-    const handleClose = () => {
-        setOpen(false);
-        setWorkedDate(tdyDate);
-        resetInput();
-    };
-
-    useEffect(()=> {
-        if(userString.id !== -1) callBackendGetKindaiAPI(workedDate);
-      }, [userString]);
-
-    const callBackendInsertKindaiAPI = async (): Promise<T>=> {
-        const breakTime =  moment.duration(`${breakHour}:${breakMinute}:00`).asHours();
-        const workedTime = moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").subtract(breakTime, 'hours').subtract(moment.duration(`${startHour}:${startMinute}:00`).asHours(), 'hours').format('HH:mm:ss');
-
-        const requestOptions = {
-          crossDomain: true,
-          method: 'POST',
-          headers: { 
-            "access-control-allow-origin" : "*",
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-              user: userString.id, 
-              workedDate: moment(workedDate, "YYYY/MM/DD").format('YYYY-MM-DD'),
-              workedCategory,
-              startTime: moment(`${startHour}:${startMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
-              endTime: moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
-              offTime: moment(`${breakHour}:${breakMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
-              workedTime,
-              workedContent
-             })
-        };
-        const response = await fetch('/api/insert-kindai', requestOptions);
-        
-        // if(response.status === 200) {
-        //     handleClose();
-        // }
-        handleClose();
-        return response;
-    };
 
     const callBackendGetKindaiAPI = async (date: string): Promise<T>=> {
         const requestOptions = {
@@ -142,11 +103,55 @@ export default function DialogAttendence(props: props): JSX.Element   {
                     setBreakHour(String(moment(data.OffTime).utc().hour()).padStart(2, '0'));
                     setBreakMinute(String(moment(data.OffTime).utc().minute()).padStart(2, '0'));
                     setWorkedContent(data.WorkedContent);
+                    setErrorMessage('');
                 } else {
                     resetInput();
                 }
             });
         }
+        return response;
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setWorkedDate(tdyDate);
+        callBackendGetKindaiAPI(tdyDate);
+    };
+
+    useEffect(()=> {
+        if(userString.id !== -1) callBackendGetKindaiAPI(workedDate);
+    }, [userString]);
+
+    const callBackendInsertKindaiAPI = async (): Promise<T>=> {
+        const breakTime =  moment.duration(`${breakHour}:${breakMinute}:00`).asHours();
+        const workedTime = moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").subtract(breakTime, 'hours').subtract(moment.duration(`${startHour}:${startMinute}:00`).asHours(), 'hours').format('HH:mm:ss');
+
+        const requestOptions = {
+          crossDomain: true,
+          method: 'POST',
+          headers: { 
+            "access-control-allow-origin" : "*",
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+              user: userString.id, 
+              workedDate: moment(workedDate, "YYYY/MM/DD").format('YYYY-MM-DD'),
+              workedCategory,
+              startTime: moment(`${startHour}:${startMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
+              endTime: moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
+              offTime: moment(`${breakHour}:${breakMinute}:00`, "HH:mm:ss").format('HH:mm:ss'),
+              workedTime,
+              workedContent
+             })
+        };
+        const response = await fetch('/api/insert-kindai', requestOptions);
+        
+        if(response.status === 200) {
+            response.json().then(data => {
+                setUserString(data);
+            });
+        }
+        handleClose();
         return response;
     };
 
@@ -270,19 +275,27 @@ export default function DialogAttendence(props: props): JSX.Element   {
                         <TextField id="outlined-basic" variant="outlined" value={workedContent} disabled={isActiveTime} onChange={(event) => setWorkedContent(event.target.value)}/>
                     </Grid> 
                 </Grid>
+            
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>キャンセル</Button>
              <Button 
                 onClick={()=>{
                     if(isValidTime) {setErrorMessage('終了時間が開始時間より前の時間で入力されています。ご確認ください。');}
+                    else if(workedCategory === '有給休暇' && userString.remainHoliday <= 0) {setErrorMessage('残有給数が0になっています。もう有給休暇を取れませんでした。');}
                     else{
                     setErrorMessage('');
                     callBackendInsertKindaiAPI();}
                 }}
             >登録</Button>
             </DialogActions>
-            <p>{errorMessage}</p>
+            <DialogContent>
+                <Grid container justifyContent="center">
+                    <Grid item xs={12} md={9}>
+                        <p>{errorMessage}</p>
+                    </Grid>
+                </Grid>
+            </DialogContent>
         </Dialog>
     );
 }
