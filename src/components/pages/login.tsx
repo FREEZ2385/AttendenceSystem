@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, TextField } from '@mui/material';
+import { Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import './css/register.css'
+import './css/login.css'
 
 type T = {
   status: number,
@@ -49,28 +49,28 @@ function Login(): JSX.Element {
 
   return (
     <div className="login">
-      <TextField label="メール" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
-      <TextField label="パスワード" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
-      <div>
+      <Typography style={{marginBottom: 10}} variant="h3">勤怠システム</Typography>
+      <TextField style={{marginBottom: 10}} label="メール" variant="outlined" onChange={(event) => setEmail(event.target.value)}/>
+      <TextField style={{marginBottom: 10}} label="パスワード" type="password" variant="outlined" onChange={(event) => setPassword(event.target.value)}/>
         <Button 
           variant="contained"
           onClick={() => {
             callBackendAPI();
           }}
+          style={{marginBottom: 10}}
         >
           ログイン
         </Button>
         <Button
-          variant="contained" 
+          variant="text" 
           onClick={() => {
             navigate("/register");
           }}
         >
-          新規登録
+          ユーザー新規登録
         </Button>
         
         <p> {errorMessage} </p>
-      </div>
     </div>
   );
 }
