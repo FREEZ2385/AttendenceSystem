@@ -2,10 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Select, MenuItem, TextField, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Button } from '@mui/material';
 import './css/DialogAttendence.css';
 import { userInfo } from "../pages/login"
+import { attendenceData } from "../pages/kindai"
 import moment from 'moment';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type props = { open: boolean; setOpen: (bool: boolean) => void; userString: userInfo; setUserString: (userInfo: userInfo) => void; dateArray: Array<string> } & typeof defaultProps;
+type props = { open: boolean; setOpen: (bool: boolean) => void; userString: userInfo; 
+    setUserString: (userInfo: userInfo) => void; 
+    dateArray: Array<string>, 
+    kindaiArray: Array<attendenceData>,
+    setKindaiArray: (data: Array<attendenceData>) => void; } & typeof defaultProps;
 
 const defaultProps = {
     open: false,
@@ -29,7 +34,7 @@ type minMax = {
 
 
 export default function DialogAttendence(props: props): JSX.Element   {
-    const {open, setOpen, userString, setUserString, dateArray} = props;
+    const {open, setOpen, userString, setUserString, dateArray, kindaiArray, setKindaiArray} = props;
 
     const hourMinMax = { min: 0, max: 23 };
     const minuteMinMax = { min: 0, max: 59 };
@@ -115,13 +120,35 @@ export default function DialogAttendence(props: props): JSX.Element   {
     const handleClose = () => {
         setOpen(false);
         setWorkedDate(tdyDate);
-        callBackendGetKindaiAPI(tdyDate);
     };
 
     useEffect(()=> {
         if(userString.id !== -1) callBackendGetKindaiAPI(workedDate);
-    }, [userString]);
+    }, [kindaiArray]);
 
+    const callBackendGetAllKindaiAPI = async (userId:number): Promise<T>=> {
+        const requestOptions = {
+          crossDomain: true,
+          method: 'POST',
+          headers: { 
+            "access-control-allow-origin" : "*",
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+              user: userId, 
+          })
+        };
+        const response = await fetch('/api/get-all-kindai', requestOptions);
+        
+        if(response.status === 200) {
+            response.json().then(data => {
+              setKindaiArray(data);
+            });
+        }
+        handleClose();
+        return response;
+      };
+    
     const callBackendInsertKindaiAPI = async (): Promise<T>=> {
         const breakTime =  moment.duration(`${breakHour}:${breakMinute}:00`).asHours();
         const workedTime = moment(`${endHour}:${endMinute}:00`, "HH:mm:ss").subtract(breakTime, 'hours').subtract(moment.duration(`${startHour}:${startMinute}:00`).asHours(), 'hours').format('HH:mm:ss');
@@ -150,9 +177,9 @@ export default function DialogAttendence(props: props): JSX.Element   {
             response.json().then(data => {
                 setUserString(data);
                 window.localStorage.setItem("attendence_user_data", JSON.stringify(data));
+                callBackendGetAllKindaiAPI(userString.id);
             });
         }
-        handleClose();
         return response;
     };
 

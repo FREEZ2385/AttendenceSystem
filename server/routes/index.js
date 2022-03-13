@@ -38,6 +38,15 @@ router.post('/check-login-user', (req, res) => {
     CheckLoginUserFunction(res, req.body);
 })
 
+router.post('/check-login-user-no-password', (req, res) => {
+    /**
+     * もらえるデータ
+     *  email, password
+     */
+    console.log("Check Login User");
+    CheckLoginUserNonPasswordFunction(res, req.body);
+})
+
 router.post('/get-kindai', (req, res) => {
     /**
      * もらえるデータ
@@ -45,6 +54,15 @@ router.post('/get-kindai', (req, res) => {
      */
     console.log("Check Kindai");
     GetAttendenceFunction(res, req.body);
+})
+
+router.post('/get-all-kindai', (req, res) => {
+    /**
+     * もらえるデータ
+     *  email, password
+     */
+    console.log("Check Kindai");
+    GetAllAttendenceFunction(res, req.body);
 })
 
 router.post('/insert-kindai', (req, res) => {
@@ -207,7 +225,7 @@ function CheckLoginUserNonPasswordFunction(response, userId)  {
     connection.execSql(request);
  }
 
-const getStartEndDates = () =>  {
+const getStartEndDatesYear = () =>  {
     var moment = require('moment');
     const startDate = moment().startOf("year").format('YYYY-MM-DD');
     const endDate = moment().endOf("year").format('YYYY-MM-DD');
@@ -215,7 +233,17 @@ const getStartEndDates = () =>  {
     return {
         startDate, endDate
     };
-  }
+}
+
+const getStartEndDatesMonth = () =>  {
+    var moment = require('moment');
+    const startDate = moment().startOf("month").format('YYYY-MM-DD');
+    const endDate = moment().endOf("month").format('YYYY-MM-DD');
+
+    return {
+        startDate, endDate
+    };
+}
 
 /**  
  *  ユーザーの残有給数確認確認
@@ -223,7 +251,7 @@ const getStartEndDates = () =>  {
  *  @param {string} email
  */
  function CheckUserRemainHolidayFunction(response, requestBody)  {  
-    const startEndDates = getStartEndDates();
+    const startEndDates = getStartEndDatesYear();
     const request = new Request(`SELECT ID FROM Attendence WHERE UserEmail=${requestBody.id} AND WorkedCategory=N'有給休暇' AND WorkedDate BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}';`, function(err) {  
         // Requestが失敗した場合
         if (err) {  
@@ -287,6 +315,55 @@ const getStartEndDates = () =>  {
                 OffTime: emailList[0][4].value,
                 WorkedContent: emailList[0][5].value.trim(),
             }
+            response.status(200).json(resultData);
+        }
+     });
+    connection.execSql(request);
+ } 
+
+/**  
+ *  １ヶ月間勤怠データー取得
+ *  @param {string} user
+ */
+ function GetAllAttendenceFunction(response, requestBody)  {  
+    const startEndDates = getStartEndDatesMonth();
+    const request = new Request(`SELECT WorkedCategory, WorkedDate, StartTime, EndTime, OffTime, WorkedTime, WorkedContent 
+                                FROM attendence WHERE UserEmail='${requestBody.user}' 
+                                AND WorkedDate BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}';`, 
+        function(err) {  
+        // Requestが失敗した場合
+        if (err) {  
+            console.log("error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+    let kindaiCnt = 0;
+    let kindaiList = [];
+    request.on('doneInProc', function (rowCount, more, rows) {
+        console.log("Check connected!");
+        // 結果データーをemailListに入れる
+        kindaiCnt = rowCount;
+        kindaiList = rows;
+    });
+    request.on('requestCompleted', function () {
+        console.log("Check Kindai completed!");
+        // emailListの数（DBからもらったデーター）がない場合登録Requestに移動
+        if(kindaiCnt === 0) {
+            response.status(200).json([]);
+        }
+        else {
+            const resultData = kindaiList.map((obj)=> {
+                return {
+                    workedCategory: obj[0].value.trim(),
+                    workedDate: obj[1].value,
+                    startTime: obj[2].value,
+                    endTime: obj[3].value,
+                    offTime: obj[4].value,
+                    workedTime: obj[5].value,
+                    workedContent: obj[6].value.trim(),
+                }
+            }) 
             response.status(200).json(resultData);
         }
      });
@@ -398,13 +475,13 @@ function UpdateKindaiFunction(response, requestBody) {
  *  @param {string} id
  */
  function SelectKindaiSumDataFunction(response, requestBody)  {  
-            const startEndDates = getStartEndDates();
-            const request = new Request(`SELECT COUNT(*) AS WorkedDay ,(SELECT COUNT(*) FROM Attendence WHERE UserEmail=${requestBody.id} AND  WorkedCategory=N'休日' AND WorkedDate 
-                                         BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}') AS OFFEDDAY,CAST(FORMAT((SUM((DATEPART("ss",WorkedTime) + DATEPART("mi",WorkedTime) * 60 + 
-                                         DATEPART("hh",WorkedTime) * 3600)) / 3600),'00') as varchar(max)) + ':' + CAST(FORMAT((SUM((DATEPART("ss",WorkedTime) + DATEPART("mi",WorkedTime) * 60 + 
-                                         DATEPART("hh",WorkedTime) * 3600)) % 3600 / 60),'00') as varchar(max)) as WorkedTime FROM Attendence WHERE UserEmail=${requestBody.id} AND 
-                                         ( WorkedCategory=N'勤務' OR WorkedCategory=N'自宅勤務') AND WorkedDate BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}';`, function(err) {  
-                // Requestが失敗した場合
+    const startEndDates = getStartEndDatesMonth();
+    const request = new Request(`SELECT COUNT(*) AS WorkedDay ,(SELECT COUNT(*) FROM Attendence WHERE UserEmail=${requestBody.id} AND  WorkedCategory=N'休日' AND WorkedDate 
+                                        BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}') AS OFFEDDAY,CAST(FORMAT((SUM((DATEPART("ss",WorkedTime) + DATEPART("mi",WorkedTime) * 60 + 
+                                        DATEPART("hh",WorkedTime) * 3600)) / 3600),'00') as varchar(max)) + ':' + CAST(FORMAT((SUM((DATEPART("ss",WorkedTime) + DATEPART("mi",WorkedTime) * 60 + 
+                                        DATEPART("hh",WorkedTime) * 3600)) % 3600 / 60),'00') as varchar(max)) as WorkedTime FROM Attendence WHERE UserEmail=${requestBody.id} AND 
+                                        ( WorkedCategory=N'勤務' OR WorkedCategory=N'自宅勤務') AND WorkedDate BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}';`, function(err) {  
+        // Requestが失敗した場合
         if (err) {  
             console.log("Sum kindai error in request");
             console.log(err);
