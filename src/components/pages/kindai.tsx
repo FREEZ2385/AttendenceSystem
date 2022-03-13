@@ -7,6 +7,7 @@ import { Location } from "history";
 import { userInfo } from "./login"
 import moment from 'moment';
 import './css/kindai.css';
+import { useNavigate } from 'react-router-dom';
 
 function getDates(month: number) {
   let startDate = moment().month(month).startOf("month");
@@ -27,6 +28,7 @@ function Kindai() : JSX.Element{
   const dateArray = getDates(moment().month());
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(()=> {
     if(state) {
@@ -63,6 +65,7 @@ function Kindai() : JSX.Element{
           </div>
           <div className="button-area">
             <Button onClick={()=> setDialogOpen(true)}>勤怠登録</Button>
+            <Button onClick={() => { window.localStorage.clear(); navigate("/login");}}>ログアウト</Button>
           </div>
           <div className="output-area">
           <TableContainer >
