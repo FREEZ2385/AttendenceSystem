@@ -244,7 +244,7 @@ const getStartEndDates = () =>  {
             ...requestBody,
             remainHoliday: requestBody.remainHoliday - emailCnt
         };
-        response.status(200).json(resultData);
+        SelectKindaiSumDataFunction(response,resultData)
      });
     connection.execSql(request);
  }  
@@ -327,7 +327,6 @@ const getStartEndDates = () =>  {
             InsertKindaiFunction(response, requestBody);
         }
         else {
-            // response.status(400).send('Already Registered Attendence. not function edit');
             UpdateKindaiFunction(response, requestBody);
         }
     });
@@ -371,7 +370,6 @@ const getStartEndDates = () =>  {
 }  
 
 function UpdateKindaiFunction(response, requestBody) {  
-    // const request = new Request('UPDATE Attendence SET WorkedCategory = @WorkedCategory,StartTime = @StartTime,EndTime = @EndTime,OffTime = @OffTime,WorkedTime = @WorkedTime,WorkedContent = @WorkedContent WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) { 
         const request = new Request(`UPDATE Attendence SET WorkedCategory = @WorkedCategory,StartTime = @StartTime,EndTime = @EndTime,OffTime = @OffTime,WorkedTime = @WorkedTime,WorkedContent = @WorkedContent WHERE UserEmail='${requestBody.user}' AND WorkedDate='${requestBody.workedDate}';`, function(err) {  
         if (err) {  
             console.log("error in request update");
@@ -394,5 +392,55 @@ function UpdateKindaiFunction(response, requestBody) {
     });
     connection.execSql(request);  
 }  
+
+/**  
+ *  勤怠データ表示
+ *  @param {string} id
+ */
+ function SelectKindaiSumDataFunction(response, requestBody)  {  
+            const startEndDates = getStartEndDates();
+            const request = new Request(`SELECT COUNT(*) AS WorkedDay ,(SELECT COUNT(*) FROM Attendence WHERE UserEmail=${requestBody.id} AND  WorkedCategory=N'休日' AND WorkedDate 
+                                         BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}') AS OFFEDDAY,CAST(FORMAT((SUM((DATEPART("ss",WorkedTime) + DATEPART("mi",WorkedTime) * 60 + 
+                                         DATEPART("hh",WorkedTime) * 3600)) / 3600),'00') as varchar(max)) + ':' + CAST(FORMAT((SUM((DATEPART("ss",WorkedTime) + DATEPART("mi",WorkedTime) * 60 + 
+                                         DATEPART("hh",WorkedTime) * 3600)) % 3600 / 60),'00') as varchar(max)) as WorkedTime FROM Attendence WHERE UserEmail=${requestBody.id} AND 
+                                         ( WorkedCategory=N'勤務' OR WorkedCategory=N'自宅勤務') AND WorkedDate BETWEEN '${startEndDates.startDate}' AND '${startEndDates.endDate}';`, function(err) {  
+                // Requestが失敗した場合
+        if (err) {  
+            console.log("Sum kindai error in request");
+            console.log(err);
+            response.status(500).send('Something broke!');
+        }
+    });  
+    let dataCnt = 0;
+    let dataList = [];
+    request.on('doneInProc', function (rowCount, more, rows) {
+        console.log("Sum kindai data connected!");
+        // 結果データーをdataListに入れる
+        dataCnt = rowCount;
+        dataList = rows;
+    });
+    request.on('requestCompleted', function () {
+        console.log("Check Kindai data completed!");
+        // dataListの数（DBからもらったデーター）がない場合登録Requestに移動
+        if(dataCnt === 0) {
+            response.status(200).json({});
+        }
+        else {
+            const resultData = {
+                id:requestBody.id,
+                email:requestBody.email,
+                firstName:requestBody.firstName,
+                familyName:requestBody.familyName,
+                remainHoliday:requestBody.remainHoliday,
+                workedDay: dataList[0][0].value,
+                offedDay: dataList[0][1].value,
+                workedTime: dataList[0][2].value,
+            }
+            response.status(200).json(resultData);
+        }
+     });
+    connection.execSql(request);
+ } 
+
 module.exports = router;
 

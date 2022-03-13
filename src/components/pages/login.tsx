@@ -13,6 +13,9 @@ export interface userInfo {
   email: string,
   id: number,
   remainHoliday: number,
+  workedDay: number,
+  offedDay: number,
+  workedTime: string,
 }
 
 function Login(): JSX.Element { 

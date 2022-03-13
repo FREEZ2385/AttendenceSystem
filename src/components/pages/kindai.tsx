@@ -23,7 +23,7 @@ function getDates(month: number) {
 function Kindai() : JSX.Element{  
   const location = useLocation();
   const state = location.state as userInfo;
-  const [userString, setUserString] = useState({familyName: '', firstName: '', email: '', id: -1, remainHoliday: -1});
+  const [userString, setUserString] = useState({familyName: '', firstName: '', email: '', id: -1, remainHoliday: -1,workedDay: 0, offedDay: 0, workedTime: ''});
   const dateArray = getDates(moment().month());
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -36,6 +36,9 @@ function Kindai() : JSX.Element{
         firstName: state?.firstName,
         familyName: state?.familyName,
         remainHoliday: state?.remainHoliday,
+        workedDay: state?.workedDay,
+        offedDay: state?.offedDay,
+        workedTime: state?.workedTime,
       });
     }
     else{
@@ -73,10 +76,10 @@ function Kindai() : JSX.Element{
                     </TableRow>
                     </TableHead>
                     <TableBody>
-                      <TableCell align="center">110</TableCell>
-                      <TableCell align="center">15</TableCell>
-                      <TableCell align="center">10</TableCell>
-                      <TableCell align="center">164</TableCell>
+                    <TableCell align="center">{userString.workedDay}</TableCell> 
+                    <TableCell align="center">{userString.offedDay}</TableCell>
+                      <TableCell align="center">{userString.remainHoliday}</TableCell>
+                      <TableCell align="center">{userString.workedTime}</TableCell>
                     </TableBody>
                     </Table>
             </TableContainer>
