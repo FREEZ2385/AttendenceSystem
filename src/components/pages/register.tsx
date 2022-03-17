@@ -34,7 +34,7 @@ function Register(): JSX.Element {
     // 200 = 成功する場合
     // 400 = 既にEmailが登録している場合
     // 500 = Requestでエラーが起きた場合（DBに問題がある場合）
-    if(response.status === 200) navigate("/login");
+    if(response.status === 200) navigate("/");
     else if (response.status === 400) setErrorMessage("入力したEmailは既に登録済です。");
     else setErrorMessage("EmailとPasswordの登録に問題が発生しました。");
 
@@ -67,7 +67,7 @@ function Register(): JSX.Element {
                 onClick={() =>
                   { 
                     const r = window.confirm("ログイン画面へ戻ります。よろしいですか?"); 
-                    if(r == true){ navigate("/login")}
+                    if(r == true){ navigate("/")}
                   }
         }>
           キャンセル
