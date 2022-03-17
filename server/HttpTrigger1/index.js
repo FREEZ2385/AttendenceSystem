@@ -8,14 +8,9 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
-app.use('/api', api);
+app.use('/', api);
 
-const port = 3002;
+const port = 7071;
 
-
-
-app.listen(port, ()=>{
-    console.log("Server Connected!");
-});
 
 module.exports = createHandler(app);
