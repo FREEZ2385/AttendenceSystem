@@ -1,11 +1,11 @@
 /* eslint-disable no-undef */
 const config = {    
-    server: process.env.HOSTNAME,  // Write host
+    server: process.env.DBHOSTNAME,  // Write host
     authentication: {
         type: 'default',
         options: {
-            userName: process.env.USERNAME, // Write Username
-            password: process.env.PASSWORD  // Write Password
+            userName: process.env.DBUSERNAME, // Write Username
+            password: process.env.DBPASSWORD  // Write Password
         }
     },
     options: {
