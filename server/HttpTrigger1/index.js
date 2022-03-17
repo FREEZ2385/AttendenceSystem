@@ -10,6 +10,6 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 
-app.use('/', api);
+app.use('/api', api);
 
 module.exports = createHandler(app);

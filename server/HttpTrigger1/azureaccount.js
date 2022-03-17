@@ -12,7 +12,8 @@ const config = {
         // If you are on Microsoft Azure, you need encryption:
         encrypt: true,
         database: 'test',  // Write database
-        rowCollectionOnDone: true
+        rowCollectionOnDone: true,
+        enableArithAbort: true
     }
 }; 
 
