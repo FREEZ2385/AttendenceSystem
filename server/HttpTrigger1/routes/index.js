@@ -6,7 +6,7 @@ router.get('/', function(req, res){
     res.send({test: 'hello World!'})
 })
 
-var connection = require('../../sqlconnect');
+var connection = require('../sqlconnect');
 var Request = require('tedious').Request  
 var TYPES = require('tedious').TYPES;  
 

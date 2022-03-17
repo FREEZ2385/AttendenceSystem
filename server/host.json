@@ -1,5 +1,8 @@
 {
   "version": "2.0",
+  "managedDependency": {
+    "enabled": true
+  },
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
@@ -11,5 +14,6 @@
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[2.*, 3.0.0)"
-  }
+  },
+ "functionTimeout": "00:05:00"
 }
