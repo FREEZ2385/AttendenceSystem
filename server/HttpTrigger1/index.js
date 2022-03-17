@@ -1,13 +1,21 @@
-module.exports = async function (context, req) {
-    context.log('JavaScript HTTP trigger function processed a request.');
+/* eslint-disable @typescript-eslint/no-var-requires */
+var express = require('express');
+const createHandler = require('azure-function-express').createHandler;
+const app = express();
+const api = require('./routes');
 
-    const name = (req.query.name || (req.body && req.body.name));
-    const responseMessage = name
-        ? "Hello, " + name + ". This HTTP triggered function executed successfully."
-        : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
 
-    context.res = {
-        // status: 200, /* Defaults to 200 */
-        body: responseMessage
-    };
-}
+app.use('/api', api);
+
+const port = 3002;
+
+
+
+app.listen(port, ()=>{
+    console.log("Server Connected!");
+});
+
+module.exports = createHandler(app);
