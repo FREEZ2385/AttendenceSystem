@@ -2,6 +2,7 @@
   "name": "attendence_system",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://brave-tree-0e4c7a700.1.azurestaticapps.net/",
   "dependencies": {
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
