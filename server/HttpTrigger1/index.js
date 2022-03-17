@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 var express = require('express');
 const azureFunctionHandler = require('azure-aws-serverless-express');
-const createHandler = require('azure-function-express').createHandler;
+// const createHandler = require('azure-function-express').createHandler;
 const app = express();
 const api = require('./routes');
 
@@ -12,4 +12,4 @@ app.use(bodyParser.json());
 
 app.use('/api', api);
 
-module.exports = createHandler(app);
+module.exports = azureFunctionHandler(app);
