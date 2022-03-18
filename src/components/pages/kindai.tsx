@@ -103,7 +103,7 @@ function Kindai() : JSX.Element{
           </div>
           <div className="button-area">
             <Button onClick={()=> setDialogOpen(true)}>勤怠登録</Button>
-            <Button onClick={() => { window.localStorage.clear(); navigate("/login");}}>ログアウト</Button>
+            <Button onClick={() => { window.localStorage.clear(); navigate("/");}}>ログアウト</Button>
           </div>
           <div className="output-area">
           <TableContainer >
