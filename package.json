@@ -2,6 +2,7 @@
   "name": "attendence_system",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://brave-tree-0e4c7a700.1.azurestaticapps.net/",
   "dependencies": {
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
@@ -37,14 +38,14 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "npm-run-all --parallel start:**",
+    "start": "node ./server/server.js",
     "start:client": "react-scripts start",
     "start:server": "node ./server/server.js",
-    "build": "react-scripts build",
+    "build": "CI=false && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:3002",
+  "proxy": "http://localhost:7071",
   "eslintConfig": {
     "extends": [
       "react-app",
